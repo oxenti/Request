@@ -1,0 +1,24 @@
+{
+    "name": "your-name-here/Request",
+    "description": "Request plugin for CakePHP",
+    "type": "cakephp-plugin",
+    "require": {
+        "php": ">=5.4.16",
+        "cakephp/cakephp": "~3.0",
+        "oxenti/soft-delete": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Request\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Request\\Test\\": "tests",
+            "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
+        }
+    }
+}
