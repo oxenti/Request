@@ -6,6 +6,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use Request\Model\Entity\Requesthistoric;
+use SoftDelete\Model\Table\SoftDeleteTrait;
 
 /**
  * Requesthistorics Model
@@ -17,6 +18,7 @@ use Request\Model\Entity\Requesthistoric;
 class RequesthistoricsTable extends Table
 {
 
+    use SoftDeleteTrait;
     /**
      * Initialize method
      *
@@ -67,7 +69,7 @@ class RequesthistoricsTable extends Table
 
         $validator
             ->add('request_id', 'valid', ['rule' => 'numeric'])
-            ->requirePresence('request_id', 'create')
+            //->requirePresence('request_id', 'create')
             ->notEmpty('request_id');
 
         $validator

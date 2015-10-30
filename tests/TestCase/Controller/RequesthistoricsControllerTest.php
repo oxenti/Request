@@ -1,6 +1,7 @@
 <?php
 namespace Request\Test\TestCase\Controller;
 
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 use Request\Controller\RequesthistoricsController;
 
@@ -16,7 +17,13 @@ class RequesthistoricsControllerTest extends IntegrationTestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.request.requesthistorics'
+        'plugin.request.requesthistorics',
+        'plugin.request.requests',
+        'plugin.request.requeststatus',
+        'plugin.request.Justifications',
+        'plugin.request.users',
+        'plugin.request.resources',
+        'plugin.request.requests_resources'
     ];
 
     /**
@@ -69,7 +76,7 @@ class RequesthistoricsControllerTest extends IntegrationTestCase
             $requests = $this->Requesthistorics->find($caso['type'])
                 ->contain([
                     'Requeststatus',
-                    'Requesthistorics.Justifications'
+                    'Justifications'
                 ])
                 ->limit($caso['limit'])
                 ->page($caso['page'])
@@ -78,12 +85,12 @@ class RequesthistoricsControllerTest extends IntegrationTestCase
         $this->configRequest([
             'headers' => ['Accept' => 'application/json']
         ]);
-        $this->get('/request/requests' . $caso['params']);
+        $this->get('/request/requesthistorics' . $caso['params']);
         if ($responseStatus) {
             $this->assertResponseOK();
             $response = json_decode($this->_response->body());
             $expected = json_encode($requests, JSON_PRETTY_PRINT);
-            $this->assertEquals($expected, json_encode($response->requests, JSON_PRETTY_PRINT), 'message');
+            $this->assertEquals($expected, json_encode($response->requesthistorics, JSON_PRETTY_PRINT), 'message');
         } else {
             $this->assertResponseError();
         }

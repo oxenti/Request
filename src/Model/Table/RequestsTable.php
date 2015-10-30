@@ -36,6 +36,10 @@ class RequestsTable extends Table
         $this->primaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Historic.Historic', [
+                'class' => 'Request.Requesthistorics',
+                'fields' => ['requeststatus_id', 'justification']
+            ]);
 
         $this->belongsTo('Owner', [
             'foreignKey' => 'owner_id',
@@ -51,11 +55,6 @@ class RequestsTable extends Table
             'foreignKey' => 'requeststatus_id',
             'joinType' => 'INNER',
             'className' => 'Request.Requeststatus'
-        ]);
-        $this->hasMany('Requesthistorics', [
-            'foreignKey' => 'request_id',
-            'conditions' => ['Requesthistorics.is_active' => true],
-            'className' => 'Request.Requesthistorics'
         ]);
         $this->belongsToMany('Resources', [
             'foreignKey' => 'request_id',

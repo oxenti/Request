@@ -18,8 +18,10 @@ class RequesthistoricsController extends AppController
      */
     public function index()
     {
+        $finder = !isset($this->request->query['finder'])?'all': $this->request->query['finder'];
         $this->paginate = [
-            'contain' => ['Requests', 'Requeststatus', 'Justifications']
+            'finder' => $finder,
+            'contain' => ['Requeststatus', 'Justifications']
         ];
         $this->set('requesthistorics', $this->paginate($this->Requesthistorics));
         $this->set('_serialize', ['requesthistorics']);

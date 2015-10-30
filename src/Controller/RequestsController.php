@@ -27,7 +27,7 @@ class RequestsController extends AppController
                 'Target',
                 'Resources',
                 'Requeststatus',
-                'Requesthistorics.Justifications'
+                'Historics.Justifications'
             ]
         ];
         $this->set('requests', $this->paginate($this->Requests));
@@ -57,11 +57,22 @@ class RequestsController extends AppController
      */
     public function add()
     {
-        $request = $this->Requests->newEntity();
+        if (isset($this->Auth)) {
+            //echo 'Com Auth';
+        } else {
+            //echo 'Sem auth';
+        }
         if ($this->request->is('post')) {
-            $request = $this->Requests->patchEntity($request, $this->request->data);
+            $data = $this->request->data;
+            $request = $this->Requests->newEntity($data, [
+                'accessibleFields' => [
+                    'owner_id' => true,
+                    'target_id' => true
+                ]
+            ]);
             if ($this->Requests->save($request)) {
                 $message = 'The request has been saved.';
+                //debug($request);
                 $this->set([
                    'success' => true,
                    'message' => $message,
@@ -87,7 +98,13 @@ class RequestsController extends AppController
             'contain' => []
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $request = $this->Requests->patchEntity($request, $this->request->data);
+            $data = $this->request->data;
+            if (isset($data['justification'])) {
+                $data['justification'] = ['justification' => $data['justification']];
+            }
+            $request = $this->Requests->patchEntity($request, $data);
+            // debug($request->get('justification'));
+            // die();
             if ($this->Requests->save($request)) {
                 $message = 'The Request has been saved.';
                 $this->set([

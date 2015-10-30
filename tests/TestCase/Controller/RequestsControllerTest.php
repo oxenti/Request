@@ -73,7 +73,7 @@ class RequestsControllerTest extends IntegrationTestCase
                     'Target',
                     'Resources',
                     'Requeststatus',
-                    'Requesthistorics.Justifications'
+                    'Historics.Justifications'
                 ]);
             $caso['params'] = '';
         } else {
@@ -83,7 +83,7 @@ class RequestsControllerTest extends IntegrationTestCase
                     'Target',
                     'Resources',
                     'Requeststatus',
-                    'Requesthistorics.Justifications'
+                    'Historics.Justifications'
                 ])
                 ->limit($caso['limit'])
                 ->page($caso['page'])
@@ -97,6 +97,7 @@ class RequestsControllerTest extends IntegrationTestCase
             $this->assertResponseOK();
             $response = json_decode($this->_response->body());
             $expected = json_encode($requests, JSON_PRETTY_PRINT);
+            debug($expected);
             $this->assertEquals($expected, json_encode($response->requests, JSON_PRETTY_PRINT), 'message');
         } else {
             $this->assertResponseError();
@@ -130,7 +131,7 @@ class RequestsControllerTest extends IntegrationTestCase
         ]);
         if ($responseStatus) {
             $request = $this->Requests->get($caso, [
-                'contain' => ['Owner', 'Target', 'Requeststatus', 'Resources', 'Requesthistorics.Justifications']
+                'contain' => ['Owner', 'Target', 'Requeststatus', 'Resources', 'Historics.Justifications']
             ]);
         }
         $this->get('/request/requests/' . $caso);
@@ -153,8 +154,8 @@ class RequestsControllerTest extends IntegrationTestCase
     public function addProvider()
     {
         $case1 = [
-            'owner_id' => 1,
-            'target_id' => 1,
+            'owner_id' => 2,
+            'target_id' => 2,
             'duration' => '11:31:11',
             'start_time' => Time::now(),
             'end_time' => Time::now(),
@@ -180,6 +181,7 @@ class RequestsControllerTest extends IntegrationTestCase
     public function testAdd($data, $responseStatus)
     {
         $this->Requests = TableRegistry::get('Request.Requests');
+        $this->Requesthistorics = TableRegistry::get('Request.Requesthistorics');
         $countInitial = $this->Requests->find()->count();
         $this->configRequest([
            'headers' => ['Accept' => 'application/json']
@@ -197,6 +199,7 @@ class RequestsControllerTest extends IntegrationTestCase
             $this->assertEquals($data['start_time'], $record->start_time, 'start_time');
             $this->assertEquals($data['end_time'], $record->end_time, 'end_time');
             $this->assertEquals($data['requeststatus_id'], $record->requeststatus_id, 'requeststatus_id');
+            $this->assertEquals(1, $this->Requesthistorics->find()->where(['request_id' => $response->id])->count(), 'historic');
         } else {
             $this->assertResponseError();
             $expected = $countInitial;
@@ -205,14 +208,46 @@ class RequestsControllerTest extends IntegrationTestCase
     }
 
     /**
+     * additionProvider method
+     *
+     * @return array
+     */
+    
+    public function editProvider()
+    {
+        // $case1 = [
+        //     'owner_id' => 2,
+        //     'target_id' => 2,
+        //     'duration' => '11:31:11',
+        //     'start_time' => Time::now(),
+        //     'end_time' => Time::now(),
+        //     'requeststatus_id' => 1,
+        // ];
+        // $case2 = [
+        //     'owner_id' => 44,
+        //     'target_id' => 44,
+        //     'duration' => '11:31:11',
+        //     'start_time' => Time::now(),
+        //     'end_time' => Time::now(),
+        //     'requeststatus_id' => 7,
+        // ];
+        $case3 = [
+            'requeststatus_id' => 3,
+            'justification' => 'teste  eufgftes gfegfy'
+        ];
+
+        return [/*[$case1, true], [$case2, false],*/ [$case3, true]];
+    }
+    /**
      * Test edit method
-     * @dataProvider addProvider
+     * @dataProvider editProvider
      * @return void
      */
     public function testEdit($data, $responseStatus)
     {
         $id = 1;
         $this->Requests = TableRegistry::get('Request.Requests');
+        $this->Requesthistorics = TableRegistry::get('Request.Requesthistorics');
         $countInitial = $this->Requests->find()->count();
         $this->configRequest([
            'headers' => ['Accept' => 'application/json']
@@ -225,12 +260,20 @@ class RequestsControllerTest extends IntegrationTestCase
             $response = json_decode($this->_response->body());
             $this->assertEquals($id, $response->id, 'message');
             $record = $this->Requests->get($response->id);
-            $this->assertEquals($data['owner_id'], $record->owner_id, 'message');
-            $this->assertEquals($data['target_id'], $record->target_id, 'message');
-            $this->assertNotEquals(new Time($data['duration']), $record->duration, 'duration');
-            $this->assertNotEquals($data['start_time'], $record->start_time, 'start_time');
-            $this->assertNotEquals($data['end_time'], $record->end_time, 'end_time');
+            if (isset($data['owner_id'])) {
+                $this->assertNotEquals($data['owner_id'], $record->owner_id, 'message');
+                $this->assertNotEquals($data['target_id'], $record->target_id, 'message');
+                $this->assertEquals(new Time($data['duration']), $record->duration, 'duration');
+                $this->assertEquals($data['start_time'], $record->start_time, 'start_time');
+                $this->assertEquals($data['end_time'], $record->end_time, 'end_time');
+            }
             $this->assertEquals($data['requeststatus_id'], $record->requeststatus_id, 'requeststatus_id');
+            $this->assertEquals(1, $this->Requesthistorics->find()->where(['request_id' => $response->id])->count(), 'historic');
+            $historic = $this->Requesthistorics->find()->where(['request_id' => $response->id])->contain(['Justifications'])->toArray();
+            $this->assertEquals($data['requeststatus_id'], $historic[0]->requeststatus_id, 'message');
+            if (isset($data['justification'])) {
+                $this->assertEquals($data['justification'], $historic[0]->justification->justification, 'message');
+            }
         } else {
             $this->assertResponseError();
         }

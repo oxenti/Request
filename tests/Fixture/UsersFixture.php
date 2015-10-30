@@ -45,5 +45,12 @@ class UsersFixture extends TestFixture
             'modified' => '2015-10-13 18:09:32',
             'is_active' => 1
         ],
+        [
+            'id' => 2,
+            'name' => 'Lorem ipsum dolor sit amet',
+            'created' => '2015-10-13 18:09:32',
+            'modified' => '2015-10-13 18:09:32',
+            'is_active' => 1
+        ],
     ];
 }

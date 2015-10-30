@@ -34,13 +34,15 @@ class Request extends Entity
      * @var array
      */
     protected $_accessible = [
-        '*' => false,
-        'requeststatus_id' => true,
+        '*' => true,
+        'id' => false,
+        'owner_id' => false,
+        'target_id' => false
     ];
 
-    protected $_virtual = ['justification'];
+    protected $_virtual = ['reason'];
 
-    protected $_hidden = ['created', 'is_active', 'modified', 'requesthistorics', 'requeststatus_id'];
+    protected $_hidden = ['created', 'is_active', 'modified', 'Historics', 'requeststatus_id'];
 
 
     
@@ -49,10 +51,10 @@ class Request extends Entity
      *
      * @return \Request\Entity\Justification
      */
-    protected function _getJustification()
+    protected function _getReason()
     {
-        if (isset($this->_properties['requesthistorics'][0]['justification'])) {
-            return $this->_properties['requesthistorics'][0]['justification']->justification;
+        if (isset($this->_properties['Historics'][0]['justification'])) {
+            return $this->_properties['Historics'][0]['justification']->justification;
         } else {
             return null;
         }

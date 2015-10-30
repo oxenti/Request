@@ -5,14 +5,16 @@
     "require": {
         "php": ">=5.4.16",
         "cakephp/cakephp": "~3.0",
-        "oxenti/soft-delete": "dev-master"
+        "oxenti/soft-delete": "dev-master",
+        "oxenti/historic": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "*"
     },
     "autoload": {
         "psr-4": {
-            "Request\\": "src"
+            "Request\\": "src",
+            "Historic\\": "vendor/oxenti/Historic/src"
         }
     },
     "autoload-dev": {

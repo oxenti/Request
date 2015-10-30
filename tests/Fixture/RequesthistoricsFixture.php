@@ -60,8 +60,7 @@ class RequesthistoricsFixture extends TestFixture
         [
             'id' => 2,
             'request_id' => 1,
-            'requeststatus_id' => 1,
-            'justification_id' => 1,
+            'requeststatus_id' => 2,
             'created' => '2015-10-13 17:28:15',
             'modified' => '2015-10-13 17:28:15',
             'is_active' => 1
