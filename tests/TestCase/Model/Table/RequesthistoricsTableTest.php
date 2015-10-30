@@ -92,7 +92,6 @@ class RequesthistoricsTableTest extends TestCase
         $result = $this->Requesthistorics->validator()->errors($case3);
         $this->assertNotEmpty($result, 'message');
         $expected = [
-            'request_id' => ['_required' => 'This field is required'],
             'requeststatus_id' => ['_required' => 'This field is required']
         ];
         $this->assertEquals($expected, $result, 'message');

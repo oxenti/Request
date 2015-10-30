@@ -1,6 +1,7 @@
 <?php
 namespace Request\Controller;
 
+use Cake\I18n\Time;
 use Cake\Network\Exception\NotFoundException;
 use Request\Controller\AppController;
 
@@ -44,7 +45,7 @@ class RequestsController extends AppController
     public function view($id = null)
     {
         $request = $this->Requests->get($id, [
-            'contain' => ['Owner', 'Target', 'Requeststatus', 'Resources', 'Requesthistorics.Justifications']
+            'contain' => ['Owner', 'Target', 'Requeststatus', 'Resources', 'Historics.Justifications']
         ]);
         $this->set('request', $request);
         $this->set('_serialize', ['request']);
@@ -64,6 +65,8 @@ class RequestsController extends AppController
         }
         if ($this->request->is('post')) {
             $data = $this->request->data;
+            $data['start_time'] = new Time($data['start_time']);
+            $data['end_time'] = new Time($data['end_time']);
             $request = $this->Requests->newEntity($data, [
                 'accessibleFields' => [
                     'owner_id' => true,

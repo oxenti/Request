@@ -155,13 +155,23 @@ class RequestsTableTest extends TestCase
             'requeststatus_id' => 1,
         ];
 
-        $case1 = $this->Requests->newEntity($data);
+        $case1 = $this->Requests->newEntity($data, [
+            'accessibleFields' => [
+                'owner_id' => true,
+                'target_id' => true
+            ]
+        ]);
         $result = $this->Requests->save($case1);
         $this->assertInstanceOf('Request\Model\Entity\Request', $result, 'message');
         $data['owner_id'] = 44;
         $data['target_id'] = 44;
         $data['requeststatus_id'] = 44;
-        $case2 = $this->Requests->newEntity($data);
+        $case2 = $this->Requests->newEntity($data, [
+            'accessibleFields' => [
+                'owner_id' => true,
+                'target_id' => true
+            ]
+        ]);
         $result = $this->Requests->save($case2);
         $this->assertFalse($result, 'message');
         $expected = [

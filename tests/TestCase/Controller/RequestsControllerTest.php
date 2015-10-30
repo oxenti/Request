@@ -97,7 +97,6 @@ class RequestsControllerTest extends IntegrationTestCase
             $this->assertResponseOK();
             $response = json_decode($this->_response->body());
             $expected = json_encode($requests, JSON_PRETTY_PRINT);
-            debug($expected);
             $this->assertEquals($expected, json_encode($response->requests, JSON_PRETTY_PRINT), 'message');
         } else {
             $this->assertResponseError();
@@ -215,22 +214,22 @@ class RequestsControllerTest extends IntegrationTestCase
     
     public function editProvider()
     {
-        // $case1 = [
-        //     'owner_id' => 2,
-        //     'target_id' => 2,
-        //     'duration' => '11:31:11',
-        //     'start_time' => Time::now(),
-        //     'end_time' => Time::now(),
-        //     'requeststatus_id' => 1,
-        // ];
-        // $case2 = [
-        //     'owner_id' => 44,
-        //     'target_id' => 44,
-        //     'duration' => '11:31:11',
-        //     'start_time' => Time::now(),
-        //     'end_time' => Time::now(),
-        //     'requeststatus_id' => 7,
-        // ];
+        $case1 = [
+            'owner_id' => 2,
+            'target_id' => 2,
+            'duration' => '11:31:11',
+            'start_time' => Time::now(),
+            'end_time' => Time::now(),
+            'requeststatus_id' => 1,
+        ];
+        $case2 = [
+            'owner_id' => 44,
+            'target_id' => 44,
+            'duration' => '11:31:11',
+            'start_time' => Time::now(),
+            'end_time' => Time::now(),
+            'requeststatus_id' => 7,
+        ];
         $case3 = [
             'requeststatus_id' => 3,
             'justification' => 'teste  eufgftes gfegfy'
