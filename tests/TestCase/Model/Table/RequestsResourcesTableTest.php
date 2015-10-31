@@ -19,8 +19,8 @@ class RequestsResourcesTableTest extends TestCase
     public $fixtures = [
         'plugin.request.requests_resources',
         'plugin.request.requests',
-        'plugin.request.services',
-        'plugin.request.resources'
+        'services',
+        'resources'
     ];
 
     /**

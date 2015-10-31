@@ -1,6 +1,7 @@
 <?php
 namespace Request\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -34,22 +35,23 @@ class RequestsTable extends Table
         $this->table('requests');
         $this->displayField('id');
         $this->primaryKey('id');
-
         $this->addBehavior('Timestamp');
         $this->addBehavior('Historic.Historic', [
                 'class' => 'Request.Requesthistorics',
                 'fields' => ['requeststatus_id', 'justification']
             ]);
 
+        $config = configure::read('Requests');
+        
         $this->belongsTo('Owner', [
             'foreignKey' => 'owner_id',
             'joinType' => 'INNER',
-            'className' => 'Request.Users'
+            'className' => $config['owner']['class']
         ]);
         $this->belongsTo('Target', [
             'foreignKey' => 'target_id',
             'joinType' => 'INNER',
-            'className' => 'Request.Users'
+            'className' => $config['target']['class']
         ]);
         $this->belongsTo('Requeststatus', [
             'foreignKey' => 'requeststatus_id',
@@ -60,7 +62,7 @@ class RequestsTable extends Table
             'foreignKey' => 'request_id',
             'targetForeignKey' => 'resource_id',
             'joinTable' => 'requests_resources',
-            'className' => 'Request.Resources'
+            'className' => $config['resources']['class']
         ]);
     }
 

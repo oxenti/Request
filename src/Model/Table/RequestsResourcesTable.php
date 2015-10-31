@@ -1,6 +1,7 @@
 <?php
 namespace Request\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -32,6 +33,7 @@ class RequestsResourcesTable extends Table
         $this->primaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $config = configure::read('Requests');
 
         $this->belongsTo('Requests', [
             'foreignKey' => 'request_id',
@@ -41,11 +43,11 @@ class RequestsResourcesTable extends Table
         $this->belongsTo('Resources', [
             'foreignKey' => 'resource_id',
             'joinType' => 'INNER',
-            'className' => 'Request.Resources'
+            'className' => $config['resources']['class']
         ]);
         $this->belongsTo('Services', [
             'foreignKey' => 'service_id',
-            'className' => 'Request.Services'
+            'className' => $config['services']['class']
         ]);
     }
 

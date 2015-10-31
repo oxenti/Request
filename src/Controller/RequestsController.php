@@ -75,7 +75,6 @@ class RequestsController extends AppController
             ]);
             if ($this->Requests->save($request)) {
                 $message = 'The request has been saved.';
-                //debug($request);
                 $this->set([
                    'success' => true,
                    'message' => $message,
@@ -106,8 +105,6 @@ class RequestsController extends AppController
                 $data['justification'] = ['justification' => $data['justification']];
             }
             $request = $this->Requests->patchEntity($request, $data);
-            // debug($request->get('justification'));
-            // die();
             if ($this->Requests->save($request)) {
                 $message = 'The Request has been saved.';
                 $this->set([

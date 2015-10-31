@@ -20,7 +20,8 @@ class RequestsTableTest extends TestCase
     public $fixtures = [
         'plugin.request.requests',
         'plugin.request.users',
-        'plugin.request.Requeststatus'
+        'plugin.request.Requeststatus',
+        'plugin.request.Requesthistorics'
     ];
 
     /**
