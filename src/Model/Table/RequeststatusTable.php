@@ -27,7 +27,7 @@ class RequeststatusTable extends Table
         parent::initialize($config);
 
         $this->table('requeststatus');
-        $this->displayField('id');
+        $this->displayField('status');
         $this->primaryKey('id');
 
         $this->addBehavior('Timestamp');
