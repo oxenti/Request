@@ -7,6 +7,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use Request\Model\Entity\Request;
+use Request\Model\Table\AppTable;
 use SoftDelete\Model\Table\SoftDeleteTrait;
 
 /**
@@ -18,7 +19,7 @@ use SoftDelete\Model\Table\SoftDeleteTrait;
  * @property \Cake\ORM\Association\HasMany $Requesthistorics
  * @property \Cake\ORM\Association\BelongsToMany $Resources
  */
-class RequestsTable extends Table
+class RequestsTable extends AppTable
 {
     use SoftDeleteTrait;
 
@@ -42,7 +43,7 @@ class RequestsTable extends Table
                 'fields' => ['requeststatus_id', 'justification']
             ]);
 
-        $this->config = configure::read('Requests');
+        $this->config = configure::read('Requests_plugin');
         
         $this->belongsTo('Owner', [
             'foreignKey' => 'owner_id',
@@ -65,6 +66,7 @@ class RequestsTable extends Table
             'joinTable' => 'requests_resources',
             'className' => $this->config['resources']['class']
         ]);
+        $this->_setAppRelations($this->config['relations']);
     }
 
     /**
@@ -126,6 +128,7 @@ class RequestsTable extends Table
         $rules->add($rules->existsIn(['owner_id'], 'Owner'));
         $rules->add($rules->existsIn(['target_id'], 'Target'));
         $rules->add($rules->existsIn(['requeststatus_id'], 'Requeststatus'));
+        return $this->_setExtraBuildRules($rules, $this->config['rules']);
         return $rules;
     }
 

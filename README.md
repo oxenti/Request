@@ -30,6 +30,9 @@ or using cake's console:
 ```sh
 ./bin/cake plugin load Request
 ```
+In your app's initial folder execute plugin's migrations:
+
+./bin/cake migrations migrate -p Request
 
 ### Configuration files
 Move the 'request.php' config file from the plugin's config folder to your app's config folder.

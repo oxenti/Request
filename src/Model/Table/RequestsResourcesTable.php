@@ -33,7 +33,7 @@ class RequestsResourcesTable extends Table
         $this->primaryKey('id');
 
         $this->addBehavior('Timestamp');
-        $config = configure::read('Requests');
+        $config = configure::read('Requests_plugins');
 
         $this->belongsTo('Requests', [
             'foreignKey' => 'request_id',
