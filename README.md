@@ -1,4 +1,4 @@
-# OxenTI Address API plugin for CakePHP 3
+# OxenTI Request API plugin for CakePHP 3
 
 This plugin contains a package with API methods for managing Addresses on a CakePHP 3 application.
 
