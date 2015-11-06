@@ -1,5 +1,5 @@
 {
-    "name": "your-name-here/Request",
+    "name": "oxenti/request",
     "description": "Request plugin for CakePHP",
     "type": "cakephp-plugin",
     "require": {
