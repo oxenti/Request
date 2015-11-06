@@ -27,6 +27,13 @@ class RequeststatusControllerTest extends IntegrationTestCase
      */
     public function testIndex()
     {
+        $this->session([
+            'Auth' => [
+                'User' => [
+                    'id' => 100,
+                ]
+            ]
+        ]);
         $this->Requeststatus = TableRegistry::get('Request.Requeststatus');
         $statusList = $this->Requeststatus->find('list');
         $this->configRequest([

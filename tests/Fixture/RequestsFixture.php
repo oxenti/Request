@@ -53,7 +53,7 @@ class RequestsFixture extends TestFixture
     public $records = [
         [
             'id' => 1,
-            'owner_id' => 1,
+            'owner_id' => 2,
             'target_id' => 1,
             'duration' => '17:31:11',
             'start_time' => '2015-10-13 17:31:11',
@@ -66,7 +66,7 @@ class RequestsFixture extends TestFixture
         [
             'id' => 2,
             'owner_id' => 1,
-            'target_id' => 1,
+            'target_id' => 2,
             'duration' => '17:31:11',
             'start_time' => '2015-10-13 17:31:11',
             'end_time' => '2015-10-13 17:31:11',

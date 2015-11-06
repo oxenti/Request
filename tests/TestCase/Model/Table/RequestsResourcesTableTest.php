@@ -14,13 +14,13 @@ class RequestsResourcesTableTest extends TestCase
     /**
      * Fixtures
      *
-     * @var array
+     *
      */
     public $fixtures = [
         'plugin.request.requests_resources',
         'plugin.request.requests',
-        'services',
-        'resources'
+        'plugin.request.services',
+        'plugin.request.resources'
     ];
 
     /**

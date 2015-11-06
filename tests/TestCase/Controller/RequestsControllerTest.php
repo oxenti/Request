@@ -1,6 +1,7 @@
 <?php
 namespace Request\Test\TestCase\Controller;
 
+use Cake\Event\Event;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
@@ -26,6 +27,25 @@ class RequestsControllerTest extends IntegrationTestCase
         'plugin.request.users',
         'plugin.request.resources'
     ];
+
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp()
+    {
+        parent::setUp();
+        $this->session([
+            'Auth' => [
+                'User' => [
+                    'id' => 100,
+                ]
+            ]
+        ]);
+    }
+
+
 
     /**
      * additionProvider method
@@ -215,7 +235,7 @@ class RequestsControllerTest extends IntegrationTestCase
     public function editProvider()
     {
         $case1 = [
-            'owner_id' => 2,
+            'owner_id' => 1,
             'target_id' => 2,
             'duration' => '11:31:11',
             'start_time' => Time::now(),
@@ -235,7 +255,7 @@ class RequestsControllerTest extends IntegrationTestCase
             'justification' => 'teste  eufgftes gfegfy'
         ];
 
-        return [/*[$case1, true], [$case2, false],*/ [$case3, true]];
+        return [[$case1, true], [$case2, false], [$case3, true]];
     }
     /**
      * Test edit method
@@ -310,5 +330,183 @@ class RequestsControllerTest extends IntegrationTestCase
             $this->assertEmpty($request, 'message');
         }
         // Check that the response was a 200
+    }
+
+    /**
+     * additionProvider method
+     *
+     * @return array
+     */
+    public function isAuthorizedProvider()
+    {
+        $data = [
+            [
+                'requestId' => 1,
+                'userId' => 1,
+                'result' => true
+            ],
+            [
+                'requestId' => 1,
+                'userId' => 4,
+                'result' => false
+            ],
+            [
+                'requestId' => 2,
+                'userId' => 1,
+                'result' => true
+            ],
+        ];
+
+        return [[$data]];
+    }
+
+    /**
+     * Test isAuthorize method for action view
+     * @dataProvider isAuthorizedProvider
+     * @return void
+     */
+    public function testIsAuthorizedIndex($data)
+    {
+        $this->configRequest([
+           'headers' => ['Accept' => 'application/json']
+        ]);
+        $this->get('/request/requests');
+        $this->assertResponseOK();
+        foreach ($data as $key => $options) {
+            $this->session([
+                'Auth' => [
+                    'User' => [
+                        'id' => $options['userId']
+                    ]
+                ]
+            ]);
+            $requestId = $options['requestId'];
+            $this->configRequest([
+               'headers' => ['Accept' => 'application/json']
+            ]);
+            $this->get('/request/requests');
+            $this->assertResponseError();
+        }
+    }
+
+    /**
+     * Test isAuthorize method for action view
+     * @dataProvider isAuthorizedProvider
+     * @return void
+     */
+    public function testIsAuthorizedView($data)
+    {
+        foreach ($data as $key => $options) {
+            $this->session([
+                'Auth' => [
+                    'User' => [
+                        'id' => $options['userId']
+                    ]
+                ]
+            ]);
+            $requestId = $options['requestId'];
+            $this->configRequest([
+               'headers' => ['Accept' => 'application/json']
+            ]);
+            $this->get('/request/requests/' . $requestId);
+            if ($options['result']) {
+                $this->assertResponseOk();
+            } else {
+                 $this->assertResponseError();
+            }
+        }
+    }
+
+    /**
+     * Test isAuthorize method for action view
+     * @dataProvider isAuthorizedProvider
+     * @return void
+     */
+    public function testIsAuthorizedAdd($data)
+    {
+        $request = [
+            'owner_id' => 2,
+            'target_id' => 2,
+            'duration' => '11:31:11',
+            'start_time' => Time::now(),
+            'end_time' => Time::now(),
+            'requeststatus_id' => 1,
+        ];
+        foreach ($data as $key => $options) {
+            $this->session([
+                'Auth' => [
+                    'User' => [
+                        'id' => $options['userId']
+                    ]
+                ]
+            ]);
+            $requestId = $options['requestId'];
+            $this->configRequest([
+               'headers' => ['Accept' => 'application/json']
+            ]);
+            $this->post('/request/requests', $request);
+            if ($options['result']) {
+                $this->assertResponseSuccess();
+            } else {
+                $this->assertResponseError();
+            }
+        }
+    }
+
+    /**
+     * Test isAuthorize method for action view
+     * @dataProvider isAuthorizedProvider
+     * @return void
+     */
+    public function testIsAuthorizedEdit($data)
+    {
+        foreach ($data as $key => $options) {
+            $this->session([
+                'Auth' => [
+                    'User' => [
+                        'id' => $options['userId']
+                    ]
+                ]
+            ]);
+            $requestId = $options['requestId'];
+            $this->configRequest([
+               'headers' => ['Accept' => 'application/json']
+            ]);
+            $this->put('/request/requests/' . $requestId);
+            if ($options['result']) {
+                $this->assertResponseOk();
+            } else {
+                 $this->assertResponseError();
+            }
+        }
+    }
+
+    /**
+     * Test isAuthorize method for action view
+     * @dataProvider isAuthorizedProvider
+     * @return void
+     */
+    public function testIsAuthorizedDelete($data)
+    {
+        $this->configRequest([
+           'headers' => ['Accept' => 'application/json']
+        ]);
+        $this->get('/request/requests');
+        $this->assertResponseOK();
+        foreach ($data as $key => $options) {
+            $this->session([
+                'Auth' => [
+                    'User' => [
+                        'id' => $options['userId']
+                    ]
+                ]
+            ]);
+            $requestId = $options['requestId'];
+            $this->configRequest([
+               'headers' => ['Accept' => 'application/json']
+            ]);
+            $this->get('/request/requests');
+            $this->assertResponseError();
+        }
     }
 }

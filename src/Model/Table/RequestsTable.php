@@ -22,6 +22,7 @@ class RequestsTable extends Table
 {
     use SoftDeleteTrait;
 
+    protected $config;
     /**
      * Initialize method
      *
@@ -41,17 +42,17 @@ class RequestsTable extends Table
                 'fields' => ['requeststatus_id', 'justification']
             ]);
 
-        $config = configure::read('Requests');
+        $this->config = configure::read('Requests');
         
         $this->belongsTo('Owner', [
             'foreignKey' => 'owner_id',
             'joinType' => 'INNER',
-            'className' => $config['owner']['class']
+            'className' => $this->config['owner']['class']
         ]);
         $this->belongsTo('Target', [
             'foreignKey' => 'target_id',
             'joinType' => 'INNER',
-            'className' => $config['target']['class']
+            'className' => $this->config['target']['class']
         ]);
         $this->belongsTo('Requeststatus', [
             'foreignKey' => 'requeststatus_id',
@@ -62,7 +63,7 @@ class RequestsTable extends Table
             'foreignKey' => 'request_id',
             'targetForeignKey' => 'resource_id',
             'joinTable' => 'requests_resources',
-            'className' => $config['resources']['class']
+            'className' => $this->config['resources']['class']
         ]);
     }
 
@@ -126,5 +127,79 @@ class RequestsTable extends Table
         $rules->add($rules->existsIn(['target_id'], 'Target'));
         $rules->add($rules->existsIn(['requeststatus_id'], 'Requeststatus'));
         return $rules;
+    }
+
+    /**
+     * verify in permission view request
+     *
+     * @param array $user info user
+     * @return bool
+     */
+    public function viewAuthorized($user, $requestId)
+    {
+        $fieldValidatorOwner = $this->config['owner']['userIndexValidator'];
+        $fieldValidatorTarget = $this->config['target']['userIndexValidator'];
+        $ownerId = isset($user[$fieldValidatorOwner])?$user[$fieldValidatorOwner]:0;
+        $targetId = isset($user[$fieldValidatorTarget])?$user[$fieldValidatorTarget]:0;
+        return $this->exists([
+            'Or' => [
+                'owner_id' => $ownerId,
+                'target_id' => $targetId
+            ],
+            'id' => $requestId
+        ]);
+    }
+
+    /**
+     * verify in permission add request
+     *
+     * @param array $user info user
+     * @return bool
+     */
+    public function addAuthorized($user)
+    {
+        $fieldValidatorOwner = $this->config['owner']['userIndexValidator'];
+        if ((isset($user[$fieldValidatorOwner])?true:false) && $this->Owner->exists([ 'id' => $user[$fieldValidatorOwner]])) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * verify in permission edit request
+     *
+     * @param array $user info user
+     * @return bool
+     */
+    public function editAuthorized($user, $requestId)
+    {
+        $fieldValidatorOwner = $this->config['owner']['userIndexValidator'];
+        $fieldValidatorTarget = $this->config['target']['userIndexValidator'];
+        $ownerId = isset($user[$fieldValidatorOwner])?$user[$fieldValidatorOwner]:0;
+        $targetId = isset($user[$fieldValidatorTarget])?$user[$fieldValidatorTarget]:0;
+        return $this->exists([
+            'Or' => [
+                'owner_id' => $ownerId,
+                'target_id' => $targetId
+            ],
+            'id' => $requestId
+        ]);
+    }
+    /**
+     * verify in permission Index request
+     *
+     * @param array $user info user
+     * @return bool
+     */
+    public function adminAuthorized($user)
+    {
+        if ($this->config['admin']['active']) {
+            $fieldValidatorAdmin = $this->config['admin']['userIndexValidator'];
+            $adminId = isset($user[$fieldValidatorAdmin])?$user[$fieldValidatorAdmin]:0;
+            if ($adminId == $this->config['admin']['value']) {
+                return true;
+            }
+        }
+        return false;
     }
 }

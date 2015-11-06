@@ -64,6 +64,13 @@ class RequesthistoricsControllerTest extends IntegrationTestCase
      */
     public function testIndex($caso, $responseStatus)
     {
+        $this->session([
+            'Auth' => [
+                'User' => [
+                    'id' => 100
+                ]
+            ]
+        ]);
         $this->Requesthistorics = TableRegistry::get('Request.Requesthistorics');
         if (empty($caso)) {
             $requests = $this->Requesthistorics->find()
@@ -94,6 +101,22 @@ class RequesthistoricsControllerTest extends IntegrationTestCase
         } else {
             $this->assertResponseError();
         }
+    }
+
+    public function testAuthorizedIndex()
+    {
+        $this->session([
+            'Auth' => [
+                'User' => [
+                    'id' => 1
+                ]
+            ]
+        ]);
+        $this->configRequest([
+            'headers' => ['Accept' => 'application/json']
+        ]);
+        $this->get('/request/requests/1/requesthistorics');
+        $this->assertResponseOK();
     }
 
     // /**

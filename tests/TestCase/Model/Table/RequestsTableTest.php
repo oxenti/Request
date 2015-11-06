@@ -182,4 +182,98 @@ class RequestsTableTest extends TestCase
         ];
         $this->assertEquals($expected, $case2->errors(), 'message');
     }
+
+    public function testViewAuthorized()
+    {
+        $data = [
+            [
+                'requestId' => 1,
+                'userId' => 1,
+                'result' => true
+            ],
+            [
+                'requestId' => 1,
+                'userId' => 4,
+                'result' => false
+            ],
+            [
+                'requestId' => 2,
+                'userId' => 1,
+                'result' => true
+            ],
+        ];
+        foreach ($data as $key => $options) {
+            $user = [
+                'id' => $options['userId']
+            ];
+            $requestId = $options['requestId'];
+            $result = $this->Requests->viewAuthorized($user, $requestId);
+            if ($options['result']) {
+                $this->assertTrue($result, 'expected true na posição ' . $key);
+            } else {
+                $this->assertFalse($result, 'expected false' . $key);
+            }
+        }
+    }
+
+    public function testAddAuthorized()
+    {
+        $data = [
+            [
+                'userId' => 1,
+                'result' => true
+            ],
+            [
+                'userId' => 4,
+                'result' => false
+            ],
+            [
+                'userId' => 2,
+                'result' => true
+            ],
+        ];
+        foreach ($data as $key => $options) {
+            $user = [
+                'id' => $options['userId']
+            ];
+            $result = $this->Requests->addAuthorized($user);
+            if ($options['result']) {
+                $this->assertTrue($result, 'expected true na posição ' . $key);
+            } else {
+                $this->assertFalse($result, 'expected false ' . $key);
+            }
+        }
+    }
+    public function testEditAuthorized()
+    {
+        $data = [
+            [
+                'requestId' => 1,
+                'userId' => 1,
+                'result' => true
+            ],
+            [
+                'requestId' => 1,
+                'userId' => 4,
+                'result' => false
+            ],
+            [
+                'requestId' => 2,
+                'userId' => 1,
+                'result' => true
+            ],
+        ];
+        foreach ($data as $key => $options) {
+            $user = [
+                'id' => $options['userId']
+            ];
+            $requestId = $options['requestId'];
+            $result = $this->Requests->EditAuthorized($user, $requestId);
+            if ($options['result']) {
+                $this->assertTrue($result, 'expected true na posição ' . $key);
+            } else {
+                $this->assertFalse($result, 'expected false' . $key);
+            }
+        }
+    }
 }

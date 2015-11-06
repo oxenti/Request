@@ -12,6 +12,24 @@ class RequesthistoricsController extends AppController
 {
 
     /**
+     * isAUtorized method
+     *
+     * @return void
+     */
+    public function isAuthorized($user)
+    {
+        $requestId = isset($this->request->params['request_id'])?$this->request->params['request_id']:0;
+        $this->Auth->config('unauthorizedRedirect', false);
+        if ($this->request->action === 'index' && $this->Requesthistorics->Requests->viewAuthorized($user, $requestId)) {
+            return true;
+        } elseif ($this->Requesthistorics->Requests->adminAuthorized($user)) {
+            return true;
+        } else {
+            parent::isAuthorized($user);
+        }
+    }
+
+    /**
      * Index method
      *
      * @return void

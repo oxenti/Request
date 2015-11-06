@@ -1,7 +1,10 @@
 <?php
 namespace Request\Controller;
 
+use Cake\Core\Configure;
+use Cake\Event\Event;
 use Cake\I18n\Time;
+use Cake\Network\Exception\BadRequestException;
 use Cake\Network\Exception\NotFoundException;
 use Request\Controller\AppController;
 
@@ -12,6 +15,29 @@ use Request\Controller\AppController;
  */
 class RequestsController extends AppController
 {
+
+    /**
+     * isAUtorized method
+     *
+     * @return void
+     */
+    public function isAuthorized($user)
+    {
+        $this->Auth->config('unauthorizedRedirect', false);
+        if ($this->request->action === 'view' && $this->Requests->viewAuthorized($user, $this->request->id)) {
+            return true;
+        } elseif ($this->request->action === 'add' && $this->Requests->addAuthorized($user, $this->request->id)) {
+            return true;
+        } elseif ($this->request->action === 'edit' && $this->Requests->editAuthorized($user, $this->request->id)) {
+            return true;
+        } elseif ($this->Requests->adminAuthorized($user)) {
+            return true;
+        } elseif ($this->request->action === 'delete' || $this->request->action === 'index') {
+            return false;
+        } else {
+            parent::isAuthorized($user);
+        }
+    }
 
     /**
      * Index method
@@ -58,15 +84,14 @@ class RequestsController extends AppController
      */
     public function add()
     {
-        if (isset($this->Auth)) {
-            //echo 'Com Auth';
-        } else {
-            //echo 'Sem auth';
-        }
         if ($this->request->is('post')) {
             $data = $this->request->data;
-            $data['start_time'] = new Time($data['start_time']);
-            $data['end_time'] = new Time($data['end_time']);
+            if (isset($data['start_time'])) {
+                $data['start_time'] = new Time($data['start_time']);
+            }
+            if (isset($data['end_time'])) {
+                $data['end_time'] = new Time($data['end_time']);
+            }
             $request = $this->Requests->newEntity($data, [
                 'accessibleFields' => [
                     'owner_id' => true,
@@ -82,7 +107,7 @@ class RequestsController extends AppController
                    '_serialize' => ['success', 'message', 'id'],
                 ]);
             } else {
-                throw new NotFoundException('The Request could not be saved. Please, try again.');
+                throw new BadRequestException('The Request could not be saved. Please, try again.');
             }
         }
     }
@@ -114,7 +139,7 @@ class RequestsController extends AppController
                    '_serialize' => ['success', 'message', 'id'],
                 ]);
             } else {
-                throw new NotFoundException('The Request could not be saved. Please, try again.');
+                throw new badRequestException('The Request could not be saved. Please, try again.');
             }
         }
     }

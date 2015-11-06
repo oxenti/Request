@@ -12,6 +12,16 @@ class RequeststatusController extends AppController
 {
 
     /**
+     * isAUtorized method
+     *
+     * @return void
+     */
+    public function isAuthorized($user)
+    {
+        return true;
+    }
+
+    /**
      * Index method
      *
      * @return void

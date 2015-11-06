@@ -6,4 +6,5 @@ Router::plugin('Request', function ($routes) {
     $routes->resources('Requests', function ($routes) {
         $routes->resources('Requesthistorics');
     });
+    $routes->resources('Requeststatus');
 });
