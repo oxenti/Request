@@ -92,6 +92,8 @@ class RequestsController extends AppController
             if (isset($data['end_time'])) {
                 $data['end_time'] = new Time($data['end_time']);
             }
+            $data['owner'] = $this->Auth->user($this->Requests->getFieldOwner());
+            $data['requeststatus_id'] = 1;
             $request = $this->Requests->newEntity($data, [
                 'accessibleFields' => [
                     'owner_id' => true,
@@ -107,6 +109,8 @@ class RequestsController extends AppController
                    '_serialize' => ['success', 'message', 'id'],
                 ]);
             } else {
+                debug($request);
+                die();
                 throw new BadRequestException('The Request could not be saved. Please, try again.');
             }
         }

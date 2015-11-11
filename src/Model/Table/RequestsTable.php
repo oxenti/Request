@@ -167,6 +167,16 @@ class RequestsTable extends AppTable
         }
         return false;
     }
+
+    /**
+     * return id do user for ownber
+     *
+     * @return id for owner
+     */
+    public function getFieldOwner()
+    {
+        return $this->config['owner']['userIndexValidator'];
+    }
     
     /**
      * verify in permission edit request
