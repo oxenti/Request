@@ -24,11 +24,14 @@ class RequestsController extends AppController
     public function isAuthorized($user)
     {
         $this->Auth->config('unauthorizedRedirect', false);
+        $params = $this->request->params;
         if ($this->request->action === 'view' && $this->Requests->viewAuthorized($user, $this->request->id)) {
             return true;
         } elseif ($this->request->action === 'add' && $this->Requests->addAuthorized($user, $this->request->id)) {
             return true;
         } elseif ($this->request->action === 'edit' && $this->Requests->editAuthorized($user, $this->request->id)) {
+            return true;
+        } elseif ($this->request->action === 'index' && $this->Requests->indexAuthorized($user, $params)) {
             return true;
         } elseif ($this->Requests->adminAuthorized($user)) {
             return true;
@@ -47,17 +50,19 @@ class RequestsController extends AppController
     public function index()
     {
         $finder = !isset($this->request->query['finder'])?'all': $this->request->query['finder'];
+        $where = [];
+        if (isset($this->request->params['owner_id']) || isset($this->request->params['target_id'])) {
+            $where = isset($this->request->params['owner_id'])?['owner_id' => $this->request->params['owner_id']]:['target_id' => $this->request->params['target_id']];
+        }
         $this->paginate = [
             'finder' => $finder,
             'contain' => [
-                'Owner',
-                'Target',
                 'Resources',
                 'Requeststatus',
                 'Historics.Justifications'
             ]
         ];
-        $this->set('requests', $this->paginate($this->Requests));
+        $this->set('requests', $this->paginate($this->Requests->find()->where($where)));
         $this->set('_serialize', ['requests']);
     }
 
@@ -71,7 +76,7 @@ class RequestsController extends AppController
     public function view($id = null)
     {
         $request = $this->Requests->get($id, [
-            'contain' => ['Owner', 'Target', 'Requeststatus', 'Resources', 'Historics.Justifications']
+            'contain' => [ 'Requeststatus', 'Resources', 'Historics.Justifications']
         ]);
         $this->set('request', $request);
         $this->set('_serialize', ['request']);

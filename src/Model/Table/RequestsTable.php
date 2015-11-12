@@ -154,6 +154,43 @@ class RequestsTable extends AppTable
     }
 
     /**
+     * return id do user for ownber
+     *
+     * @return id for owner
+     */
+    public function getFieldOwner()
+    {
+        return $this->config['owner']['userIndexValidator'];
+    }
+
+    /**
+     * return id do user for ownber
+     *
+     * @return id for owner
+     */
+    public function getFieldTarget()
+    {
+        return $this->config['target']['userIndexValidator'];
+    }
+
+    /**
+     * verify in permission add request
+     *
+     * @param array $user info user
+     * @return bool
+     */
+    public function indexAuthorized($user, $params)
+    {
+        if (isset($params['owner_id']) && isset($user[$this->getFieldOwner()]) && $params['owner_id'] == $user[$this->getFieldOwner()]) {
+            return true;
+        } elseif (isset($params['target_id']) && isset($user[$this->getFieldTarget()]) && $params['target_id'] == $user[$this->getFieldTarget()]) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * verify in permission add request
      *
      * @param array $user info user
@@ -166,16 +203,6 @@ class RequestsTable extends AppTable
             return true;
         }
         return false;
-    }
-
-    /**
-     * return id do user for ownber
-     *
-     * @return id for owner
-     */
-    public function getFieldOwner()
-    {
-        return $this->config['owner']['userIndexValidator'];
     }
     
     /**

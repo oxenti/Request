@@ -6,5 +6,11 @@ Router::plugin('Request', function ($routes) {
     $routes->resources('Requests', function ($routes) {
         $routes->resources('Requesthistorics');
     });
+    $routes->resources('Owner', function ($routes) {
+        $routes->resources('Requests');
+    });
+    $routes->resources('Target', function ($routes) {
+        $routes->resources('Requests');
+    });
     $routes->resources('Requeststatus');
 });
