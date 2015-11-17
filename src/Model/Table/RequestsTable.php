@@ -2,6 +2,8 @@
 namespace Request\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\I18n\Time;
+use Cake\Network\Exception\BadRequestException;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -60,11 +62,17 @@ class RequestsTable extends AppTable
             'joinType' => 'INNER',
             'className' => 'Request.Requeststatus'
         ]);
-        $this->belongsToMany('Resources', [
+        if (isset($this->config['resources']['class'])) {
+            $this->belongsToMany('Resources', [
+                'foreignKey' => 'request_id',
+                'targetForeignKey' => 'resource_id',
+                'joinTable' => 'requests_resources',
+                'className' => $this->config['resources']['class']
+            ]);
+        }
+
+        $this->hasMany('RequestsResources', [
             'foreignKey' => 'request_id',
-            'targetForeignKey' => 'resource_id',
-            'joinTable' => 'requests_resources',
-            'className' => $this->config['resources']['class']
         ]);
         $this->_setAppRelations($this->config['relations']);
     }
@@ -82,7 +90,7 @@ class RequestsTable extends AppTable
             ->allowEmpty('id', 'create');
 
         $validator
-            ->add('duration', 'valid', ['rule' => 'time'])
+            //->add('duration', 'valid', ['rule' => 'time'])
             ->requirePresence('duration', 'create')
             ->notEmpty('duration');
 
@@ -128,6 +136,8 @@ class RequestsTable extends AppTable
         $rules->add($rules->existsIn(['owner_id'], 'Owner'));
         $rules->add($rules->existsIn(['target_id'], 'Target'));
         $rules->add($rules->existsIn(['requeststatus_id'], 'Requeststatus'));
+        $rules->add($rules->existsIn(['owner_id'], 'Owner'));
+        $rules->add($rules->existsIn(['target_id'], 'Target'));
         return $this->_setExtraBuildRules($rules, $this->config['rules']);
         return $rules;
     }
@@ -164,13 +174,44 @@ class RequestsTable extends AppTable
     }
 
     /**
-     * return id do user for ownber
+     * return id do user for target
      *
      * @return id for owner
      */
     public function getFieldTarget()
     {
         return $this->config['target']['userIndexValidator'];
+    }
+
+    /**
+     * return id do user for Admin
+     *
+     * @return id for owner
+     */
+    public function getFieldAdmin()
+    {
+        return $this->config['admin']['userIndexValidator'];
+    }
+
+    /**
+     * return id do user for Admin value
+     *
+     * @return id for owner
+     */
+    public function getFieldAdminValue()
+    {
+        return $this->config['admin']['value'];
+    }
+
+    /**
+     *
+     *
+     * @return durationm request
+     */
+    public function getDuration($endTime, $startTime)
+    {
+        $duration = date_diff($endTime, $startTime);
+        return $duration;
     }
 
     /**
@@ -204,27 +245,45 @@ class RequestsTable extends AppTable
         }
         return false;
     }
-    
+
     /**
-     * verify in permission edit request
+     * return id status cancel for user
      *
-     * @param array $user info user
-     * @return bool
+     * @param $user and $requestId $action info user an id the request
+     * @return bool or id new status request
      */
-    public function editAuthorized($user, $requestId)
+    public function getStatus($user, $requestId, $action)
     {
-        $fieldValidatorOwner = $this->config['owner']['userIndexValidator'];
-        $fieldValidatorTarget = $this->config['target']['userIndexValidator'];
-        $ownerId = isset($user[$fieldValidatorOwner])?$user[$fieldValidatorOwner]:0;
-        $targetId = isset($user[$fieldValidatorTarget])?$user[$fieldValidatorTarget]:0;
-        return $this->exists([
-            'Or' => [
-                'owner_id' => $ownerId,
-                'target_id' => $targetId
-            ],
-            'id' => $requestId
-        ]);
+        $statusAtual = $this->get($requestId, ['fields' => ['requeststatus_id']])->requeststatus_id;
+        $perfil = $this->getPerfilUser($user);
+        $statusChange = isset($this->config[$perfil]['statusChangeRules'][$statusAtual])?$this->config[$perfil]['statusChangeRules'][$statusAtual]:[];
+        $status = isset($this->config[$perfil]['status'][$action])?$this->config[$perfil]['status'][$action]:null;
+        if ($status && in_array($status, $statusChange)) {
+            return $status;
+        } else {
+            return false;
+        }
     }
+
+    /**
+     * return the perfil for request (owner or Target or Admin)
+     *
+     * @param array $user info the user
+     * @return bool or string perfil
+     */
+    public function getPerfilUser($user)
+    {
+        if (isset($user[$this->getFieldOwner()])) {
+            return 'owner';
+        } elseif (isset($user[$this->getFieldTarget()])) {
+            return 'target';
+        } elseif (isset($user[$this->getFieldAdmin()]) && $user[$this->getFieldAdmin()] == $this->getFieldAdminValue()) {
+            return 'admin';
+        } else {
+            return false;
+        }
+    }
+
     /**
      * verify in permission Index request
      *

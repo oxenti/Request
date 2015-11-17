@@ -12,5 +12,4 @@ Router::plugin('Request', function ($routes) {
     $routes->resources('Target', function ($routes) {
         $routes->resources('Requests');
     });
-    $routes->resources('Requeststatus');
 });

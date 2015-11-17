@@ -40,15 +40,19 @@ class RequestsResourcesTable extends Table
             'joinType' => 'INNER',
             'className' => 'Request.Requests'
         ]);
-        $this->belongsTo('Resources', [
-            'foreignKey' => 'resource_id',
-            'joinType' => 'INNER',
-            'className' => $config['resources']['class']
-        ]);
-        $this->belongsTo('Services', [
-            'foreignKey' => 'service_id',
-            'className' => $config['services']['class']
-        ]);
+        if (isset($config['resources']['class'])) {
+            $this->belongsTo('Resources', [
+                'foreignKey' => 'resource_id',
+                'joinType' => 'INNER',
+                'className' => $config['resources']['class']
+            ]);
+        }
+        if (isset($config['services']['class'])) {
+            $this->belongsTo('Services', [
+                'foreignKey' => 'service_id',
+                'className' => $config['services']['class']
+            ]);
+        }
     }
 
     /**
