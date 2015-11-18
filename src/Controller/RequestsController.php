@@ -80,7 +80,7 @@ class RequestsController extends AppController
     {
         $this->request->allowMethod(['get']);
         $request = $this->Requests->get($id, [
-            'contain' => [ 'Requeststatus', 'Resources', 'Historics.Justifications']
+            'contain' => ['Owner', 'Target', 'Requeststatus', 'Resources', 'Historics.Justifications']
         ]);
         $this->set('request', $request);
         $this->set('_serialize', ['request']);
