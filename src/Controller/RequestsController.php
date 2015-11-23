@@ -57,6 +57,12 @@ class RequestsController extends AppController
         if (isset($this->request->params['owner_id']) || isset($this->request->params['target_id'])) {
             $where = isset($this->request->params['owner_id'])?['owner_id' => $this->request->params['owner_id']]:['target_id' => $this->request->params['target_id']];
         }
+        if (isset($this->request->query['status'])) {
+            $where[] = ['requeststatus_id' => $this->request->query['status']];
+        }
+        if (isset($this->request->query['unread'])) {
+            $where[] = ['unread' => $this->request->query['unread']];
+        }
         $this->paginate = [
             'finder' => $finder,
             'contain' => [
