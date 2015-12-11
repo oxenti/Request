@@ -51,27 +51,29 @@ class RequestsController extends AppController
      */
     public function index()
     {
-        $this->request->allowMethod(['get']);
-        $finder = !isset($this->request->query['finder'])?'all': $this->request->query['finder'];
+       $this->request->allowMethod(['get']);
+        $finder = isset($this->request->query['complete'])? 'all' : 'list';
         $where = [];
         if (isset($this->request->params['owner_id']) || isset($this->request->params['target_id'])) {
-            $where = isset($this->request->params['owner_id'])?['owner_id' => $this->request->params['owner_id']]:['target_id' => $this->request->params['target_id']];
-        }
-        if (isset($this->request->query['status'])) {
-            $where[] = ['requeststatus_id' => $this->request->query['status']];
-        }
-        if (isset($this->request->query['unread'])) {
-            $where[] = ['unread' => $this->request->query['unread']];
+            if (isset($this->request->params['owner_id'])) {
+                $where = ['owner_id' => $this->request->params['owner_id']];
+                $join = 'Target';
+            } else {
+                $where = ['target_id' => $this->request->params['target_id']];
+                $join = 'Owner';
+            }
         }
         $this->paginate = [
             'finder' => $finder,
             'contain' => [
                 'Resources',
                 'Requeststatus',
-                'Historics.Justifications'
-            ]
+                'Historics.Justifications',
+                $join
+            ],
+            'conditions' => $where
         ];
-        $this->set('requests', $this->paginate($this->Requests->find()->where($where)));
+        $this->set('requests', $this->paginate($this->Requests));
         $this->set('_serialize', ['requests']);
     }
 
