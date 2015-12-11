@@ -42,7 +42,7 @@ class Request extends Entity
 
     protected $_virtual = ['reason'];
 
-    protected $_hidden = ['created', 'is_active', 'modified', 'historics', 'requeststatus_id'];
+    protected $_hidden = ['is_active', 'modified', 'historics', 'requeststatus_id'];
 
 
     

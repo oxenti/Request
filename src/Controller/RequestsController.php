@@ -52,20 +52,28 @@ class RequestsController extends AppController
     public function index()
     {
         $this->request->allowMethod(['get']);
-        $finder = !isset($this->request->query['finder'])?'all': $this->request->query['finder'];
+        $finder = isset($this->request->query['complete'])? 'all' : 'list';
         $where = [];
         if (isset($this->request->params['owner_id']) || isset($this->request->params['target_id'])) {
-            $where = isset($this->request->params['owner_id'])?['owner_id' => $this->request->params['owner_id']]:['target_id' => $this->request->params['target_id']];
+            if (isset($this->request->params['owner_id'])) {
+                $where = ['owner_id' => $this->request->params['owner_id']];
+                $join = 'Target';
+            } else {
+                $where = ['target_id' => $this->request->params['target_id']];
+                $join = 'Owner';
+            }
         }
         $this->paginate = [
             'finder' => $finder,
             'contain' => [
                 'Resources',
                 'Requeststatus',
-                'Historics.Justifications'
-            ]
+                'Historics.Justifications',
+                $join
+            ],
+            'conditions' => $where
         ];
-        $this->set('requests', $this->paginate($this->Requests->find()->where($where)));
+        $this->set('requests', $this->paginate($this->Requests));
         $this->set('_serialize', ['requests']);
     }
 
@@ -94,7 +102,7 @@ class RequestsController extends AppController
     public function add()
     {
         $this->request->allowMethod(['post']);
-        if (!isset($this->request->data['service_id']) || !isset($this->request->data['resource_id'])) {
+        if (!isset($this->request->data['service_id'])) {
             throw new BadRequestException('The Request could not be saved. Please, try again.');
         }
         $data = $this->request->data;
@@ -102,12 +110,15 @@ class RequestsController extends AppController
         $data['end_time'] = isset($data['end_time'])?new Time($data['end_time']):null;
         $data['duration'] = date_diff($data['end_time'], $data['start_time'])->format('%d %H:%I:%S');
         $data['owner_id'] = $this->Auth->user($this->Requests->getFieldOwner());
-        $data['requests_resources'] = [
-            [
-                'service_id' => $data['service_id'],
-                'resource_id' => $data['resource_id']
-            ]
-        ];
+        foreach ($data['resources'] as $topicId) {
+            $data['requests_resources'] = [
+                [
+                    'service_id' => $data['service_id'],
+                    'resource_id' => $topicId
+                ]
+            ];
+        }
+        unset($data['resources']);
         $data['requeststatus_id'] = 1;
         $request = $this->Requests->newEntity($data, [
             'accessibleFields' => [
@@ -115,17 +126,16 @@ class RequestsController extends AppController
                 'target_id' => true
             ]
         ]);
-        if ($this->Requests->save($request)) {
-            $message = 'The request has been saved.';
-            $this->set([
-               'success' => true,
-               'message' => $message,
-               'id' => $request->id,
-               '_serialize' => ['success', 'message', 'id'],
-            ]);
-        } else {
+        if (!$this->Requests->save($request)) {
             throw new BadRequestException('The Request could not be saved. Please, try again.');
         }
+        $message = 'The request has been saved.';
+        $this->set([
+           'success' => true,
+           'message' => $message,
+           'id' => $request->id,
+           '_serialize' => ['success', 'message', 'id'],
+        ]);
     }
 
     /**
@@ -198,6 +208,8 @@ class RequestsController extends AppController
                    '_serialize' => ['message']
                 ]);
             } else {
+                debug($request);
+                die();
                 throw new badRequestException('The Request not canceled.');
             }
         } else {
