@@ -110,7 +110,7 @@ class RequestsController extends AppController
         $data['end_time'] = isset($data['end_time'])?new Time($data['end_time']):null;
         $data['duration'] = date_diff($data['end_time'], $data['start_time'])->format('%d %H:%I:%S');
         $data['owner_id'] = $this->Auth->user($this->Requests->getFieldOwner());
-        $data['requests_resources'] = [
+        $data['requests_resources'][] = [
             [
                 'service_id' => $data['service_id'],
                 'resource_id' => $data['resource_id']
