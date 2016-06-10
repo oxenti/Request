@@ -33,4 +33,6 @@ class RequestsResource extends Entity
         '*' => true,
         'id' => false,
     ];
+
+    protected $_hidden = ['created', 'is_active', 'modified', 'id'];
 }

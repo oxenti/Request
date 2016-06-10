@@ -73,6 +73,7 @@ class RequestsTable extends AppTable
 
         $this->hasMany('RequestsResources', [
             'foreignKey' => 'request_id',
+            'classname' => 'RequestsResources'
         ]);
         $this->_setAppRelations($this->config['relations']);
     }
