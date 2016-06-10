@@ -110,12 +110,10 @@ class RequestsController extends AppController
         $data['end_time'] = isset($data['end_time'])?new Time($data['end_time']):null;
         $data['duration'] = date_diff($data['end_time'], $data['start_time'])->format('%d %H:%I:%S');
         $data['owner_id'] = $this->Auth->user($this->Requests->getFieldOwner());
-        foreach ($data['resources'] as $topicId) {
-            $data['requests_resources'] = [
-                [
+        foreach ($data['resources'] as $index => $topicId) {
+            $data['requests_resources'][$index] = [
                     'service_id' => $data['service_id'],
                     'resource_id' => $topicId
-                ]
             ];
         }
         unset($data['resources']);
@@ -208,8 +206,6 @@ class RequestsController extends AppController
                    '_serialize' => ['message']
                 ]);
             } else {
-                debug($request);
-                die();
                 throw new badRequestException('The Request not canceled.');
             }
         } else {
