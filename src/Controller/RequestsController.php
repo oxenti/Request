@@ -63,6 +63,9 @@ class RequestsController extends AppController
                 $join = 'Owner';
             }
         }
+        if (isset($this->request->query['status'])) {
+            $where['Requeststatus.id'] = $this->request->query['status'];
+        }
         $this->paginate = [
             'finder' => $finder,
             'contain' => [
@@ -124,6 +127,8 @@ class RequestsController extends AppController
                 'target_id' => true
             ]
         ]);
+        // debug($request);
+        // die();
         if (!$this->Requests->save($request)) {
             throw new BadRequestException('The Request could not be saved. Please, try again.');
         }

@@ -46,7 +46,7 @@ class RequestsTable extends AppTable
             ]);
 
         $this->config = configure::read('Requests_plugin');
-        
+
         $this->belongsTo('Owner', [
             'foreignKey' => 'owner_id',
             'joinType' => 'INNER',
