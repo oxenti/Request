@@ -199,20 +199,19 @@ class RequestsController extends AppController
      */
     public function cancel($id = null)
     {
-        $this->request->allowMethod(['patch']);
+        $this->request->allowMethod(['get', 'patch']);
         $statusCancel = $this->Requests->getStatus($this->Auth->user(), $id, 'cancel');
         if ($statusCancel) {
             $request = $this->Requests->get($id);
             $request->requeststatus_id = $statusCancel;
-            if ($this->Requests->save($request)) {
-                $message = 'Request cancel with sucess.';
-                $this->set([
-                   'message' => $message,
-                   '_serialize' => ['message']
-                ]);
-            } else {
+            if (!$this->Requests->save($request)) {
                 throw new badRequestException('The Request not canceled.');
             }
+            $message = 'Request cancel with sucess.';
+            $this->set([
+               'message' => $message,
+               '_serialize' => ['message']
+            ]);
         } else {
             throw new badRequestException('The Request not canceled.');
         }
@@ -226,7 +225,7 @@ class RequestsController extends AppController
      */
     public function accept($id = null)
     {
-        $this->request->allowMethod(['patch']);
+        $this->request->allowMethod(['patch', 'get']);
         $statusAccept = $this->Requests->getStatus($this->Auth->user(), $id, 'accept');
         if ($statusAccept) {
             $request = $this->Requests->get($id);
@@ -253,10 +252,11 @@ class RequestsController extends AppController
      */
     public function reject($id = null)
     {
-        $this->request->allowMethod(['patch']);
+        $this->request->allowMethod(['patch','post']);
         $statusReject = $this->Requests->getStatus($this->Auth->user(), $id, 'reject');
         if ($statusReject) {
             $request = $this->Requests->get($id);
+            $request = $this->Requests->patchEntity($request, $this->request->data);
             $request->requeststatus_id = $statusReject;
             if ($this->Requests->save($request)) {
                 $message = 'Request Reject with sucess.';
