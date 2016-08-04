@@ -4,7 +4,7 @@ namespace Request\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\I18n\Time;
-use Cake\Network\Exception\BadRequestException;
+use App\Network\Exception\BadRequestException;
 use Cake\Network\Exception\NotFoundException;
 use Request\Controller\AppController;
 
@@ -199,7 +199,7 @@ class RequestsController extends AppController
      */
     public function cancel($id = null)
     {
-        $this->request->allowMethod(['get', 'patch']);
+        $this->request->allowMethod(['post', 'patch']);
         $statusCancel = $this->Requests->getStatus($this->Auth->user(), $id, 'cancel');
         if ($statusCancel) {
             $request = $this->Requests->get($id);
@@ -265,7 +265,7 @@ class RequestsController extends AppController
                    '_serialize' => ['message']
                 ]);
             } else {
-                throw new badRequestException('The Request not change status. Please, try again.');
+                throw new BadRequestException('The Request not change status. Please, try again.');
             }
         } else {
             throw new badRequestException('The Request not change status. Please, try again.');
